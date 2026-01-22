@@ -15,7 +15,7 @@ function App() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/dashboard');
+      const response = await axios.get('https://shikshasahayak-wjq3.onrender.com/api/dashboard');
       setData(response.data);
       setLoading(false);
     } catch (error) {
@@ -25,13 +25,13 @@ function App() {
 
   const handleRunAnalysis = async () => {
     alert("⚙️ Running System Analysis on Teacher Data...");
-    await axios.post('http://localhost:5000/api/trigger-analysis');
+    await axios.post('https://shikshasahayak-wjq3.onrender.com/api/trigger-analysis');
     fetchDashboardData();
     alert("✅ Pattern Detected! New Training Module Generated.");
   };
 
   const handleDeploy = async (id) => {
-    await axios.post(`http://localhost:5000/api/deploy-module/${id}`);
+    await axios.post(`https://shikshasahayak-wjq3.onrender.com/api/deploy-module/${id}`);
     fetchDashboardData();
     alert("🚀 Module Deployed to District Teachers!");
   };

@@ -84,6 +84,41 @@ app.post('/api/deploy-module/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// ... existing code ...
+
+// 5. ONE-TIME DATABASE SETUP (Run this once to create tables on Render)
+app.get('/setup-db', async (req, res) => {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS queries (
+        id SERIAL PRIMARY KEY,
+        teacher_id VARCHAR(255),
+        grade INTEGER,
+        subject VARCHAR(100),
+        query TEXT,
+        student_profiles JSONB,
+        response TEXT,
+        status VARCHAR(50),
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+      
+      CREATE TABLE IF NOT EXISTS modules (
+        id SERIAL PRIMARY KEY,
+        subject VARCHAR(100),
+        grade INTEGER,
+        title VARCHAR(200),
+        content TEXT,
+        generated_from_queries INTEGER,
+        success_rate DECIMAL(5,2),
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    res.send("✅ Database Tables Created Successfully! You can now use the app.");
+  } catch (error) {
+    res.status(500).send("❌ Error creating tables: " + error.message);
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
