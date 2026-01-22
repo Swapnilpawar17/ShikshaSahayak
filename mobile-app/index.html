@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher WhatsApp</title>
+    <style>
+        /* PHONE CONTAINER */
+        body {
+            background-color: #2c3e50;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .phone {
+            width: 350px;
+            height: 700px;
+            background-color: #e5ddd5; /* WhatsApp BG Color */
+            border-radius: 30px;
+            border: 10px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* HEADER */
+        .header {
+            background-color: #075e54;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .header-info h4 { margin: 0; font-size: 16px; }
+        .header-info p { margin: 0; font-size: 12px; opacity: 0.8; }
+
+        /* CHAT AREA */
+        .chat-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .received {
+            background: white;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+
+        .sent {
+            background: #dcf8c6;
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+
+        .time {
+            font-size: 10px;
+            color: #999;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* INPUT AREA */
+        .input-area {
+            padding: 10px;
+            background: #f0f0f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        button {
+            background: #075e54;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .typing { font-style: italic; color: #555; font-size: 12px; margin-left: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="phone">
+        <!-- Header -->
+        <div class="header">
+            <div class="avatar">🤖</div>
+            <div class="header-info">
+                <h4>AI Teacher Coach</h4>
+                <p>Online</p>
+            </div>
+        </div>
+
+        <!-- Chat History -->
+        <div class="chat-area" id="chat">
+            <div class="message received">
+                Hello Teacher! 👋 <br>How can I help you in class today?
+                <div class="time">10:00 AM</div>
+            </div>
+        </div>
+        <div class="typing" id="typing">Coach is typing...</div>
+
+        <!-- Input -->
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Type a problem..." onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chat = document.getElementById('chat');
+            const typing = document.getElementById('typing');
+            const text = input.value;
+
+            if (!text) return;
+
+            // 1. Add User Message to Chat
+            addMessage(text, 'sent');
+            input.value = '';
+
+            // 2. Show Typing Indicator
+            typing.style.display = 'block';
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                // 3. Send to YOUR Backend
+                const response = await fetch('http://localhost:5000/api/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        teacherId: "Teacher_Mobile_User",
+                        grade: 5,
+                        subject: "General",
+                        query: text,
+                        studentProfiles: []
+                    })
+                });
+
+                const data = await response.json();
+
+                // 4. Add AI Response to Chat
+                typing.style.display = 'none';
+                addMessage(data.response, 'received');
+
+            } catch (error) {
+                typing.style.display = 'none';
+                addMessage("❌ Error connecting to server. Is Backend running?", 'received');
+            }
+        }
+
+        function addMessage(text, type) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerHTML = text.replace(/\n/g, '<br>') + `<div class="time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+    </script>
+</body>
+</html>
