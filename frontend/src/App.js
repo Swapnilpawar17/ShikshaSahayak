@@ -39,8 +39,8 @@ function App() {
   return (
     <div className="dashboard">
       <header className="header">
-        <h1>🎓 Just-in-Time Teacher Coach</h1>
-        <p>District Command Center</p>
+        <h1>🎓 ShikshaSahayak</h1>
+        <p>Just-in-Time Teacher Coach</p>
       </header>
 
       <div className="container">
